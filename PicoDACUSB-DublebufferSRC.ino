@@ -161,7 +161,7 @@ void core1_worker() {
 //      r_out -= 0x8000;
 //      l_out -= 0x8000;
 
-
+/* キャプチャデータは13bitの２の補数? */
 #define SHIFT 3
 
       r_out <<=  SHIFT;
