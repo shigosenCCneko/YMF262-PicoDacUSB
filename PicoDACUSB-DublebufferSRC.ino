@@ -47,7 +47,10 @@ volatile  int     pcBufferNo = 1;
 volatile  uint16_t pcCounter = 0;
 volatile  uint16_t nBytes = 0;
 
-
+int16_t  srcBuffer_l[812];
+int16_t  srcBuffer_r[812];
+int readCntStep29;
+int writeCntStep28;
 
 
 void init_timer(void);
@@ -99,6 +102,9 @@ void setup() {
   pcBufferNo = 1;
   prev_l_out = 0;
   prev_r_out = 0;
+
+  readCntStep29 = -58;
+  writeCntStep28 = 0;
 }
 
 void loop() {
@@ -141,7 +147,7 @@ void core1_worker() {
     if (pio_sm_is_rx_fifo_empty(gPio, gPio_SM) != true) {
       sample_r = pio_sm_get(gPio, gPio_SM);
       dac_data_r = sample_r & 0x0000ffff;
-    }    
+    }
 
     if (pio_sm_is_rx_fifo_empty(gPio, gPio_SM2) != true) {
       sample_r = pio_sm_get(gPio, gPio_SM2);
@@ -158,10 +164,10 @@ void core1_worker() {
       l_out = dac_data_l;
 
 
-//      r_out -= 0x8000;
-//      l_out -= 0x8000;
+      //      r_out -= 0x8000;
+      //      l_out -= 0x8000;
 
-/* キャプチャデータは13bitの２の補数? */
+      /* キャプチャデータは13bitの２の補数? */
 #define SHIFT 3
 
       r_out <<=  SHIFT;
@@ -211,29 +217,34 @@ void init_timer() {
 
 void buffWrite(int16_t left, int16_t right) {
 
-  del_count1++;
-  del_count2++;
 
-/* サンプリングレートの整合のためデータを間引く    x(28/29)    */
-  if (del_count1 == 29) {
-    del_count1 = 0;
+  int d_l = (left - prev_l_out) >> 5;
+  int d_r = (right - prev_r_out) >> 5;
 
-  } else {
+  for (int i = 0; i < 28; i++) {
+    srcBuffer_l[writeCntStep28] = prev_l_out + d_l * i;
+    srcBuffer_r[writeCntStep28] = prev_r_out + d_r * i;
+    writeCntStep28++;
+  }
+  prev_l_out = left;
+  prev_r_out = right;
 
-#define DIFFERENCE_DIV  5
+  readCntStep29 += 29;
+  if (readCntStep29 >= 0) {
+    left = srcBuffer_l[readCntStep29];
+    right = srcBuffer_r[readCntStep29];
 
-/* 線形補完の代用に前のデータとの差分を1/32したものを足す */
-      right = right + (right - prev_r_out) >> DIFFERENCE_DIV;
-      left  = left  + (left  - prev_l_out) >> DIFFERENCE_DIV;
+    if (writeCntStep28 > 810) {
+      writeCntStep28 = 0;
+      readCntStep29 = -58;
 
-      prev_r_out = right;
-      prev_l_out = right;
-
+    }
 
 
 
 
-    
+
+
     pcBuffer16[pcCounter] = left;
     pcCounter++;
     nBytes += 2;
