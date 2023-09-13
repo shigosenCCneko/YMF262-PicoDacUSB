@@ -24,8 +24,8 @@ uint gPio_SM;
 uint gPio_SM2;
 
 
-int del_count1 = 0;
-int del_count2 = 0;
+int data_cnt = 0;
+int data_offset = 28;
 
 volatile int16_t dac_data_r = 0;
 volatile int16_t dac_data_l = 0;
@@ -213,7 +213,8 @@ void init_timer() {
 
 }
 
-
+//int data_cnt = 0;
+//int data_offset = 28;
 
 void buffWrite(int16_t left, int16_t right) {
 
@@ -221,24 +222,18 @@ void buffWrite(int16_t left, int16_t right) {
   int d_l = (left - prev_l_out) >> 5;
   int d_r = (right - prev_r_out) >> 5;
 
-  for (int i = 0; i < 28; i++) {
-    srcBuffer_l[writeCntStep28] = prev_l_out + d_l * i;
-    srcBuffer_r[writeCntStep28] = prev_r_out + d_r * i;
-    writeCntStep28++;
-  }
+
+ left   = left - d_l * data_offset;
+ right   = right - d_r * data_offset
+
   prev_l_out = left;
   prev_r_out = right;
 
-  readCntStep29 += 29;
-  if (readCntStep29 >= 0) {
-    left = srcBuffer_l[readCntStep29];
-    right = srcBuffer_r[readCntStep29];
+  data_osset--;
 
-    if (writeCntStep28 > 810) {
-      writeCntStep28 = 0;
-      readCntStep29 = -58;
-
-    }
+  if(data_offset == 0){
+    data_offset =28;
+  }
 
 
 
