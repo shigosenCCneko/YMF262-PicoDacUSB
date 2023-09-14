@@ -213,38 +213,34 @@ void init_timer() {
 
 }
 
-//int data_cnt = 0;
-//int data_offset = 28;
+
 
 void buffWrite(int16_t left, int16_t right) {
+  int16_t left_d, right_d;
+
+/* サンプリングレートの変換 */
+  if (data_cnt == 0) {
+    prev_l_out = left;
+    prev_r_out = right;
+    
+  }else{
+    int d_l = (left - prev_l_out) /28;
+    int d_r = (right - prev_r_out) /28;
 
 
-  int d_l = (left - prev_l_out) >> 5;
-  int d_r = (right - prev_r_out) >> 5;
+    left_d    = prev_l_out  + d_l * (data_cnt - 1);
+    right_d   = prev_r_out  + d_r * (data_cnt - 1);
 
-
- left   = left - d_l * data_offset;
- right   = right - d_r * data_offset
-
-  prev_l_out = left;
-  prev_r_out = right;
-
-  data_osset--;
-
-  if(data_offset == 0){
-    data_offset =28;
-  }
-
-
-
+    prev_l_out = left;
+    prev_r_out = right;
 
 
 
-    pcBuffer16[pcCounter] = left;
+    pcBuffer16[pcCounter] = left_d;
     pcCounter++;
     nBytes += 2;
 
-    pcBuffer16[pcCounter] = right;
+    pcBuffer16[pcCounter] = right_d;
     pcCounter++;
     nBytes += 2;
 
@@ -265,7 +261,12 @@ void buffWrite(int16_t left, int16_t right) {
         pcBufferNo = 1;
       }
     }
+  }
 
+  data_cnt++;
+
+  if (data_cnt == 29) {
+    data_cnt = 0;
   }
 
 }
