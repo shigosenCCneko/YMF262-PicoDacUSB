@@ -48,13 +48,19 @@ YMF262 Digital Output Timing
 1 frame = 16bit Left + 16bit Right
 
 SMT1:  ____|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|______________________________
+
 SMT2:  ____________________________|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|______
+
 
 CLK :  _|‾|_|‾|_|‾|_|‾|_ ... (16 pulses) ... _|‾|_|‾|_
 
+
 DATA:   b15 b14 b13 ... b1 b0      b15 b14 ... b1 b0
+
         <---- 15bit loop ---->     <---- 15bit loop ---->
+        
         (PIO: set x,14 / jmp x--)  (PIO: set x,14 / jmp x--)
+        
 
 PIO behavior:
   1. Wait for SMT2 (Right frame start)
@@ -63,6 +69,7 @@ PIO behavior:
   4. Wait for SMT1 (Left frame start)
   5. Same 16‑bit read sequence
   6. autopush = 32bit (Left + Right)
+
 
 
 
