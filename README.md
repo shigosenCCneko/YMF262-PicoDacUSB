@@ -22,3 +22,8 @@ CLK
 ## Arudionのボード設定
 USB-Audioのライブラリを使う為  
 Arduino Mbed OS RP2040 board ->Rasberry Pi Pico　を使用
+
+## レベルシフタ必須
+YMF262は5V出力,Picoは5Vトレラントではないので
+レベルシフタが必要です。
+
