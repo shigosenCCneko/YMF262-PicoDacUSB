@@ -31,6 +31,7 @@ YMF262は5V出力,Picoは5Vトレラントではないので
 This project replaces the YAC512 DAC for the Yamaha YMF262 (OPL3) 
 using Raspberry Pi Pico PIO and outputs USB Audio directly. 
 It is designed for people who cannot obtain the YAC512 anymore.
+Don’t forget to level‑shift from 5V to 3.3V.
 
 
 ### YMF262 Digital Output Timing (SMT1 / SMT2 / CLK / DATA)
